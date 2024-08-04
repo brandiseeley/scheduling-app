@@ -7,10 +7,14 @@ class TimeRange(models.Model):
     start_time = models.DateTimeField('start time')
     end_time = models.DateTimeField('end time')
 
+    def __add__(self, other):
+        """Returns a new TimeRange object merging the two times if they overlap. None if they don't"""
+        pass
+
     class Meta:
         constraints = [
             CheckConstraint(
-                check=Q(start_time__lt="end_time"),
+                check=Q(start_time__lt=models.F('end_time')),
                 name='check_start_time_before_end_time'
             ),
         ]
