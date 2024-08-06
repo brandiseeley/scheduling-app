@@ -61,3 +61,29 @@ class TimeRangeTestCase(TestCase):
         range1 = TimeRange(start_time=start, end_time=stop1)
         range2 = TimeRange(start_time=start, end_time=stop2)
         self.assertNotEqual(range1, range2)
+        
+    def test_add_with_overlap(self):
+        """Adding two overlapping time ranges gives a larger range"""
+        time1 = datetime(2024, 8, 6, 7, 30)
+        time2 = datetime(2024, 8, 6, 8, 30)
+        time3 = datetime(2024, 8, 6, 9, 30)
+        time4 = datetime(2024, 8, 6, 10, 30)
+        range1 = TimeRange(start_time=time1, end_time=time3)
+        range2 = TimeRange(start_time=time2, end_time=time4)
+
+        new_range = range1 + range2
+        self.assertEqual(time1, new_range.start_time)
+        self.assertEqual(time4, new_range.end_time)
+
+    def test_add_without_overlap(self):
+        """Adding two non-overlapping time ranges gives a larger range"""
+        time1 = datetime(2024, 8, 6, 7, 30)
+        time2 = datetime(2024, 8, 6, 8, 30)
+        time3 = datetime(2024, 8, 6, 9, 30)
+        time4 = datetime(2024, 8, 6, 10, 30)
+        range1 = TimeRange(start_time=time1, end_time=time2)
+        range2 = TimeRange(start_time=time3, end_time=time4)
+
+        new_range = range1 + range2
+        self.assertEqual(time1, new_range.start_time)
+        self.assertEqual(time4, new_range.end_time)
