@@ -8,8 +8,12 @@ class TimeRange(models.Model):
     end_time = models.DateTimeField('end time')
 
     def __add__(self, other):
-        """Returns a new TimeRange object merging the two times if they overlap. None if they don't"""
-        pass
+        """Returns a new TimeRange object using the earlier start and the later stop time"""
+        if not isinstance(other, TimeRange):
+            return NotImplemented
+        new_start = self.start_time if self.start_time < other.start_time else other.start_time
+        new_end = self.end_time if self.end_time > other.end_time else other.end_time
+        return TimeRange(start_time=new_start, end_time=new_end)
 
     def __lt__(self, other):
         """A TimeRange with a start time that is earlier than other will always be considered less than"""
