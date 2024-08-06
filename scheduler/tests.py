@@ -33,7 +33,7 @@ class TimeRangeTestCase(TestCase):
         self.assertRaises(IntegrityError, time_range.save)
 
     def test_less_than(self):
-        """A TimeRange with an earlier start is considered less than a TimeRange with a later start"""
+        """A TimeRange with an earlier start is less than a TimeRange with a later start"""
         time1 = datetime(2024, 8, 6, 7, 30)
         time2 = datetime(2024, 8, 6, 8, 30)
         time3 = datetime(2024, 8, 6, 9, 30)
@@ -61,7 +61,7 @@ class TimeRangeTestCase(TestCase):
         range1 = TimeRange(start_time=start, end_time=stop1)
         range2 = TimeRange(start_time=start, end_time=stop2)
         self.assertNotEqual(range1, range2)
-        
+
     def test_add_with_overlap(self):
         """Adding two overlapping time ranges gives a larger range"""
         time1 = datetime(2024, 8, 6, 7, 30)

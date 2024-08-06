@@ -16,14 +16,14 @@ class TimeRange(models.Model):
         return TimeRange(start_time=new_start, end_time=new_end)
 
     def __lt__(self, other):
-        """A TimeRange with a start time that is earlier than other will always be considered less than"""
+        """A TimeRange with a start time that is earlier than other will be considered less than"""
         if not isinstance(other, TimeRange):
             return NotImplemented
         if self.start_time == other.start_time:
             return self.end_time < other.end_time
         else:
             return self.start_time < other.start_time
-    
+
     def __eq__(self, other):
         """Both start and end times must be the same to be considered equal"""
         if not isinstance(other, TimeRange):
