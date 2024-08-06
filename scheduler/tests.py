@@ -16,8 +16,8 @@ class TimeRangeTestCase(TestCase):
         later = datetime(2024, 10, 4)
         time_range = TimeRange(start_time=earlier, end_time=later)
         time_range.save()
-        self.assertEqual(time_range.start_time, earlier)
-        self.assertEqual(time_range.end_time, later)
+        self.assertEqual(earlier, time_range.start_time)
+        self.assertEqual(later, time_range.end_time)
 
     def test_creating_reversed_range(self):
         """Creating a range with end before start raises an error"""
