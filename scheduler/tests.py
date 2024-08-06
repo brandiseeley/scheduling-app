@@ -31,3 +31,33 @@ class TimeRangeTestCase(TestCase):
         time = datetime(2024, 8, 4)
         time_range = TimeRange(start_time=time, end_time=time)
         self.assertRaises(IntegrityError, time_range.save)
+
+    def test_less_than(self):
+        """A TimeRange with an earlier start is considered less than a TimeRange with a later start"""
+        time1 = datetime(2024, 8, 6, 7, 30)
+        time2 = datetime(2024, 8, 6, 8, 30)
+        time3 = datetime(2024, 8, 6, 9, 30)
+        time4 = datetime(2024, 8, 6, 10, 30)
+
+        range1 = TimeRange(start_time=time1, end_time=time3)
+        range2 = TimeRange(start_time=time2, end_time=time4)
+        self.assertLess(range1, range2)
+
+    def test_equal(self):
+        """Two TimeRanges are equal if they have the same start and stop"""
+        start1 = datetime(2024, 8, 6, 7, 30)
+        start2 = datetime(2024, 8, 6, 7, 30)
+        stop1 = datetime(2024, 8, 6, 8, 30)
+        stop2 = datetime(2024, 8, 6, 8, 30)
+        range1 = TimeRange(start_time=start1, end_time=stop1)
+        range2 = TimeRange(start_time=start2, end_time=stop2)
+        self.assertEqual(range1, range2)
+
+    def test_not_equal(self):
+        """Two TimeRanges with the same starts but different stops are not equal"""
+        start = datetime(2024, 8, 6, 7, 30)
+        stop1 = datetime(2024, 8, 6, 8, 30)
+        stop2 = datetime(2024, 8, 6, 9, 30)
+        range1 = TimeRange(start_time=start, end_time=stop1)
+        range2 = TimeRange(start_time=start, end_time=stop2)
+        self.assertNotEqual(range1, range2)
