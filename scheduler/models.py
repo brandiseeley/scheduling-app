@@ -19,6 +19,9 @@ class Schedule(models.Model):
     def get_main_union(self):
         return self.timerangeunion_set.get(is_main=True)
 
+    def get_user_unions(self):
+        return self.timerangeunion_set.filter(is_main=False)
+
 class TimeRangeUnion(models.Model):
     """A collection of TimeRange objects representing one set of time"""
     is_main = models.BooleanField()
