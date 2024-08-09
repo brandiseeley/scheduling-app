@@ -87,3 +87,15 @@ class TimeRangeTestCase(TestCase):
         new_range = range1 + range2
         self.assertEqual(time1, new_range.start_time)
         self.assertEqual(time4, new_range.end_time)
+
+    def test_sorting_ranges_without_overlap(self):
+        """Sorting a list of ranges should result in ascending start times"""
+        time1 = datetime(2024, 8, 6, 7, 30)
+        time2 = datetime(2024, 8, 6, 8, 30)
+        time3 = datetime(2024, 8, 6, 9, 30)
+        time4 = datetime(2024, 8, 6, 10, 30)
+        range1 = TimeRange(start_time=time1, end_time=time2)
+        range2 = TimeRange(start_time=time3, end_time=time4)
+
+        range_list = [range2, range1]
+        self.assertEqual([range1, range2], sorted(range_list))

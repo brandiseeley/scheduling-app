@@ -1,14 +1,5 @@
-<!-- {% if latest_question_list %}
-    <ul>
-    {% for question in latest_question_list %}
-        <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %} -->
-
-<h1>Test</h1>
+<!DOCTYPE html>
+<h1>Schedule Info:</h1>
 <p>Schedule: {{ schedule }}</p>
 <p>Main Union: {{ main_union }}</p>
 <p>User Unions:</p>
@@ -17,3 +8,6 @@
   <li>{{ union }}</li>
   {% endfor %}
 </ul>
+
+<p>Start day for schedule: -{{ main_union.earliest_range.start_time }}-</p>
+<p>End day for schedule: -{{ main_union.latest_range.end_time }}-</p>
