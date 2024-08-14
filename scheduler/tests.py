@@ -4,7 +4,9 @@ from zoneinfo import ZoneInfo
 from django.test import TestCase
 from django.db.utils import IntegrityError
 
+from .models import Schedule
 from .models import TimeRange
+from .models import TimeRangeUnion
 
 class TimeRangeTestCase(TestCase):
     """Tests for single TimeRange objects"""
@@ -100,3 +102,71 @@ class TimeRangeTestCase(TestCase):
 
         range_list = [range2, range1]
         self.assertEqual([range1, range2], sorted(range_list))
+
+
+class ScheduleCreationTestCase(TestCase):
+    def test_schedule_must_have_title(self):
+        pass
+
+    def test_cannot_have_multiple_main_ranges(self):
+        pass
+
+    def test_cannot_add_user_range_without_main_range(self):
+        pass
+
+    def test_add_range_within_bounds(self):
+        pass
+
+    def test_cannot_add_range_out_side_of_main_range_bounds(self):
+        pass
+
+    def test_can_add_multiple_user_ranges(self):
+        pass
+
+class ScheduleFunctionalityTestCase(TestCase):
+    """Tests for Schedule models"""
+    def setUp(self):
+        timezone = ZoneInfo('Asia/Seoul')
+
+        # Create Schedule and it's main range
+        schedule = Schedule.objects.create(title="Meeting Next Week")
+        schedule.save()
+
+        monday = datetime(2024, 9, 2, 7, tzinfo=timezone)
+        friday = datetime(2024, 9, 6, 17, tzinfo=timezone)
+        main_range = TimeRange.objects.create(start_time=monday, end_time=friday)
+        main_range.save()
+
+        main_union = TimeRangeUnion.objects.create(is_main=True)
+        main_union.add_range(main_range)
+        schedule.add_main_union(main_union)
+
+        # Create ranges for user
+        tuesday_morning = datetime(2024, 9, 3, 8, tzinfo=timezone)
+        tuesday_noon =    datetime(2024, 9, 3, 12, tzinfo=timezone)
+        tuesday_range = TimeRange.objects.create(start_time=tuesday_morning, end_time=tuesday_noon)
+        tuesday_range.save()
+
+        thursday_noon =    datetime(2024, 9, 5, 12, tzinfo=timezone)
+        thursday_evening = datetime(2024, 9, 5, 17, tzinfo=timezone)
+        thursday_range = TimeRange.objects.create(start_time=thursday_noon, end_time=thursday_evening)
+        thursday_range.save()
+
+        # Create union for user
+        user1_union = TimeRangeUnion.objects.create(is_main=False, owner='Brandi')
+        user1_union.add_range(tuesday_range)
+        user1_union.add_range(thursday_range)
+
+        # Add user union to schedule
+        schedule.add_user_union(user1_union)
+
+        self.__class__.schedule = schedule
+
+    def test_days_property(self):
+        pass
+
+    def test_hours_property(self):
+        pass
+
+    def test_add_user_union(self):
+        pass
