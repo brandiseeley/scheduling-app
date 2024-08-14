@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.db import models
 from django.db.models import Q
 from django.db.models.constraints import CheckConstraint
@@ -23,7 +25,29 @@ class Schedule(models.Model):
     @property
     def user_unions(self):
         return self.timerangeunion_set.filter(is_main=False)
-
+    
+    @property
+    def days(self):
+        return self.main_union.days
+    
+    @property
+    def hours(self):
+        return self.main_union.hours
+    
+    def as_dict(self):
+        return {
+            'self': self,
+            'main_union':  self.main_union,
+            'user_unions': self.user_unions,
+            'days': self.days,
+            'hours': [ # Default to 9-5 for now
+                '0900', '0930', '1000', '1030',
+                '1100', '1130', '1200', '1230',
+                '1300', '1330', '1400', '1430',
+                '1500', '1530', '1600', '1630',
+                '1700', '1730', '1800', '1830',
+            ]
+        }
 
 class TimeRangeUnion(models.Model):
     """A collection of TimeRange objects representing one set of time"""
@@ -48,13 +72,23 @@ class TimeRangeUnion(models.Model):
         return sorted(self.all_ranges, key=lambda r: r.end_time, reverse=True)[0]
 
     @property
-    def start_day(self):
-        return self.earliest_range.day
+    def start_date(self):
+        return self.earliest_range.start_time.date()
 
     @property
-    def end_day(self):
-        return self.latest_range.day
-
+    def end_date(self):
+        return self.latest_range.end_time.date()
+    
+    @property
+    def days(self):
+        current_day = self.start_date
+        print(self.start_date)
+        print(current_day)
+        days = []
+        while current_day <= self.end_date:
+            days.append(current_day)
+            current_day += timedelta(days=1)
+        return days
 
 class TimeRange(models.Model):
     """A range that spans from one time to another"""

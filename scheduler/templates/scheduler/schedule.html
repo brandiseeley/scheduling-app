@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <h1>Schedule Info:</h1>
-<p>Schedule: {{ schedule }}</p>
+<p>Schedule: {{ self }}</p>
 <p>Main Union: {{ main_union }}</p>
 <p>User Unions:</p>
 <ul>
@@ -9,5 +9,24 @@
   {% endfor %}
 </ul>
 
-<p>Start day for schedule: -{{ main_union.earliest_range.start_time }}-</p>
-<p>End day for schedule: -{{ main_union.latest_range.end_time }}-</p>
+<p>Start day for schedule: -{{ main_union.start_date }}-</p>
+<p>End day for schedule: -{{ main_union.end_date }}-</p>
+
+<table>
+  <thead>
+    <tr>
+      {% for day in days %}
+      <th scope="col">|--{{ day }}--|</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for hour in hours %}
+    <tr>
+      {% for day in days %}
+      <td>{{ hour }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
