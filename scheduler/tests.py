@@ -105,6 +105,28 @@ class TimeRangeTestCase(TestCase):
         range_list = [range2, range1]
         self.assertEqual([range1, range2], sorted(range_list))
 
+class TimeRangeUnionTestCase(TestCase):
+    def setUp(self):
+        tuesday_morning = datetime(2024, 9, 3, 8, tzinfo=ZoneInfo('UTC'))
+        tuesday_noon =    datetime(2024, 9, 3, 12, tzinfo=ZoneInfo('UTC'))
+        tuesday_range = TimeRange.objects.create(start_time=tuesday_morning, end_time=tuesday_noon)
+        tuesday_range.save()
+
+        thursday_noon =    datetime(2024, 9, 5, 12, tzinfo=ZoneInfo('UTC'))
+        thursday_evening = datetime(2024, 9, 5, 17, tzinfo=ZoneInfo('UTC'))
+        thursday_range = TimeRange.objects.create(start_time=thursday_noon, end_time=thursday_evening)
+        thursday_range.save()
+
+        # Create union for user
+        user1_union = TimeRangeUnion.objects.create(is_main=False, owner='Brandi')
+        user1_union.add_range(tuesday_range)
+        user1_union.add_range(thursday_range)
+
+        self.__class__.user1_union = user1_union
+
+    def test_hours(self):
+        print(self.__class__.user1_union.slots)
+        pass
 
 class ScheduleCreationTestCase(TestCase):
     def setUp(self):

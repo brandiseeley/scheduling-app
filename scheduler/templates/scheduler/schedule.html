@@ -18,6 +18,9 @@
   
   <p>Start day for schedule: -{{ main_union.start_date }}-</p>
   <p>End day for schedule: -{{ main_union.end_date }}-</p>
+
+  <h1>User Slots:</h1>
+  <p>{{ user_slots }}</p>
   
   <table>
     <thead>
@@ -28,10 +31,10 @@
       </tr>
     </thead>
     <tbody>
-      {% for hour in hours %}
+      {% for datetime in hour_samples %}
       <tr>
         {% for day in days %}
-        <td>{{ hour }}</td>
+        <td>{{ datetime.hour }}:{{ datetime.minute }}</td>
         {% endfor %}
       </tr>
       {% endfor %}

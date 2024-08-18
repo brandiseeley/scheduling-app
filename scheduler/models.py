@@ -7,7 +7,6 @@ from django.db.models.constraints import CheckConstraint
 class ScheduleError(Exception):
     pass
 
-
 class Schedule(models.Model):
     """The main schedule that is shared between users to add availability"""
     title = models.CharField(max_length=300)
@@ -51,12 +50,8 @@ class Schedule(models.Model):
             'main_union':  self.main_union,
             'user_unions': self.user_unions,
             'days': self.days,
-            'hours': [ # Default to 9-5 for now
-                '0900', '0930', '1000', '1030',
-                '1100', '1130', '1200', '1230',
-                '1300', '1330', '1400', '1430',
-                '1500', '1530', '1600', '1630',
-            ]
+            'hour_samples': sorted(list(self.main_union.hours)),
+            'user_slots': [ union.slots for union in self.user_unions ],
         }
 
 class TimeRangeUnion(models.Model):
@@ -100,7 +95,21 @@ class TimeRangeUnion(models.Model):
     
     @property
     def hours(self):
-        pass
+        hours = set()
+        datetimes = []
+        for slot in self.slots:
+            hour = f'{slot.hour}:{slot.minute}'
+            if hour not in hours:
+                datetimes.append(slot)
+            hours.add(hour)
+        return datetimes
+
+    @property
+    def slots(self):
+        all_slots = []
+        for time_range in self.all_ranges:
+            all_slots.extend(time_range.slots)
+        return all_slots
 
 class TimeRange(models.Model):
     """A range that spans from one time to another"""
@@ -111,6 +120,17 @@ class TimeRange(models.Model):
         blank=True, null=True,
         on_delete=models.CASCADE
     )
+
+    @property
+    def slots(self):
+        all_slots = []
+        
+        current = self.start_time
+        while current < self.end_time:
+            all_slots.append(current)
+            current += timedelta(minutes=30)
+
+        return all_slots
 
     def __add__(self, other):
         """Returns a new TimeRange object using the earlier start and the later stop time"""
