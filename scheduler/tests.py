@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import date
 from zoneinfo import ZoneInfo
 
 from django.test import TestCase
@@ -7,6 +8,7 @@ from django.db.utils import IntegrityError
 from .models import Schedule
 from .models import TimeRange
 from .models import TimeRangeUnion
+from .models import ScheduleError
 
 class TimeRangeTestCase(TestCase):
     """Tests for single TimeRange objects"""
@@ -105,11 +107,55 @@ class TimeRangeTestCase(TestCase):
 
 
 class ScheduleCreationTestCase(TestCase):
-    def test_schedule_must_have_title(self):
-        pass
+    def setUp(self):
+        timezone = ZoneInfo('UTC')
+
+        monday = datetime(2024, 9, 2, 7, tzinfo=timezone)
+        wednesday = datetime(2024, 9, 4, 17, tzinfo=timezone)
+        main_range = TimeRange.objects.create(start_time=monday, end_time=wednesday)
+        main_range.save()
+
+        main_union = TimeRangeUnion.objects.create(is_main=True)
+        main_union.add_range(main_range)
+
+        self.__class__.main_union = main_union
+    
+    def test_adding_main_range(self):
+        schedule = Schedule.objects.create(title="Meeting Next Week")
+        schedule.save()
+
+        schedule.add_main_union(self.__class__.main_union)
+        self.assertEqual(self.__class__.main_union, schedule.main_union)
+
+        days = [
+            date(2024, 9, 2),
+            date(2024, 9, 3),
+            date(2024, 9, 4),
+        ]
+
+        self.assertEqual(days, schedule.days)
+        self.assertEqual(days[0], schedule.main_union.start_date)
+        self.assertEqual(days[-1], schedule.main_union.end_date)
+        self.assertFalse(schedule.user_unions.exists())
 
     def test_cannot_have_multiple_main_ranges(self):
-        pass
+        schedule = Schedule.objects.create(title="Meeting Next Week")
+        schedule.save()
+
+        schedule.add_main_union(self.__class__.main_union)
+
+        tuesday = datetime(2024, 9, 3, 7, tzinfo=ZoneInfo('Asia/Seoul'))
+        thursday = datetime(2024, 9, 5, 7, tzinfo=ZoneInfo('Asia/Seoul'))
+        new_range = TimeRange.objects.create(start_time=tuesday, end_time=thursday)
+        new_range.save()
+        new_union = TimeRangeUnion.objects.create(is_main=True)
+        new_union.add_range(new_range)
+
+        with self.assertRaises(ScheduleError) as error:
+            schedule.add_main_union(new_union)
+
+        exception = error.exception
+        self.assertEqual('Schedule may only have one main union', str(exception))
 
     def test_cannot_add_user_range_without_main_range(self):
         pass

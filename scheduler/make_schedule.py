@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 from scheduler.models import TimeRange, TimeRangeUnion, Schedule
 
 # Define the timezone
-timezone = ZoneInfo('Asia/Seoul')
+timezone = ZoneInfo('UTC')
 
 # Create the main schedule
 schedule = Schedule.objects.create(title="Meeting Next Week")

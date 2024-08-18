@@ -4,6 +4,9 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.constraints import CheckConstraint
 
+class ScheduleError(Exception):
+    pass
+
 
 class Schedule(models.Model):
     """The main schedule that is shared between users to add availability"""
@@ -16,11 +19,19 @@ class Schedule(models.Model):
     def add_main_union(self, time_range_union):
         """Adds the main range that indicates where child ranges may exist"""
         # TODO: Make sure we don't already have a 'main' union
+        if self.main_union:
+            raise ScheduleError('Schedule may only have one main union')
+
         self.timerangeunion_set.add(time_range_union)
 
     @property
     def main_union(self):
-        return self.timerangeunion_set.get(is_main=True)
+        try:
+            main = self.timerangeunion_set.get(is_main=True)
+        except TimeRangeUnion.DoesNotExist:
+            return None
+
+        return main
 
     @property
     def user_unions(self):
@@ -82,13 +93,15 @@ class TimeRangeUnion(models.Model):
     @property
     def days(self):
         current_day = self.start_date
-        print(self.start_date)
-        print(current_day)
         days = []
         while current_day <= self.end_date:
             days.append(current_day)
             current_day += timedelta(days=1)
         return days
+    
+    @property
+    def hours(self):
+        pass
 
 class TimeRange(models.Model):
     """A range that spans from one time to another"""
