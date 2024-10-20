@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="{% static 'scheduler/style.css' %}">
 </head>
 <body>
-  <h1>Schedule Info:</h1>
+  <h1>Schedule</h1>
   <p>Schedule: {{ self }}</p>
   <p>Main Union: {{ main_union }}</p>
   <p>User Unions:</p>
@@ -19,25 +19,14 @@
   <p>Start day for schedule: -{{ main_union.start_date }}-</p>
   <p>End day for schedule: -{{ main_union.end_date }}-</p>
 
-  <h1>User Slots:</h1>
-  <p>{{ user_slots }}</p>
-  
-  <table>
+  <table id="schedule">
     <thead>
-      <tr>
-        {% for day in days %}
-        <th scope="col">{{ day }}</th>
-        {% endfor %}
+      <tr id="days">
       </tr>
     </thead>
     <tbody>
-      {% for datetime in hour_samples %}
-      <tr>
-        {% for day in days %}
-        <td>{{ datetime.hour }}:{{ datetime.minute }}</td>
-        {% endfor %}
-      </tr>
-      {% endfor %}
     </tbody>
   </table>
+
+  <script src="{% static 'scheduler/render_schedules.js' %}"></script>
 </body>

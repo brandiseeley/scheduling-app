@@ -46,9 +46,9 @@ class Schedule(models.Model):
     
     def as_dict(self):
         return {
-            'self': self,
-            'main_union':  self.main_union,
-            'user_unions': self.user_unions,
+            # 'self': self,
+            # 'main_union':  self.main_union,
+            # 'user_unions': self.user_unions,
             'days': self.days,
             'hour_samples': sorted(list(self.main_union.hours)),
             'user_slots': [ union.slots for union in self.user_unions ],
