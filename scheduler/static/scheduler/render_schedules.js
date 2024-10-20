@@ -1,11 +1,4 @@
 /*
-
-We want a single page application.
-As such, everything will be rendered, right now, with JS.
-I set up Django templates, but that's not really what we want. Send a basic
-skeleton of a schedule with some ids to grab onto, use JS and
-get info from server to render the schedules.
-
 1. Create a basic skeleton to be sent as the original HTML file we get.
 
 2. Write JS that renders the main schedule (for now just use one)
@@ -16,11 +9,6 @@ get info from server to render the schedules.
   - Fetch data asynchronously (Should already have it)
   - Iterate through each existing user and add their names
     to the appropriate schedule
-
-Problem: This all happens on the front end. The server would be very basic.
-Just for storing dates/times, and schedules. All rendering would happen with
-JS on the front end.
-
 */
 
 async function getScheduleData() {
