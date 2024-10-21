@@ -14,12 +14,13 @@
 */
 
 async function getScheduleData() {
-  let response = await fetch('data/24');
+  let response = await fetch('data/29');
   let data = await response.json();
   console.log(data);
   return data;
 }
 
+// Date String ID should always be in UTC
 function dateStringId(date) {
   return date.toISOString();
 }
@@ -50,7 +51,7 @@ function renderTimes(hourSamples, days) {
 
       console.log(tableData);
       let suffix = hours >= 12 ? 'pm' : 'am';
-      tableData.textContent = `${hours}:${String(minutes).padEnd(2, '0')} ${suffix}`;
+      tableData.textContent = `${hours > 12 ? hours % 12 : hours}:${String(minutes).padEnd(2, '0')} ${suffix}`;
 
       tableData.dataset.timeslot = dateStringId(jsTime);
       row.appendChild(tableData);
@@ -66,7 +67,8 @@ function renderUserAvailability(userUnions) {
       let timeId = dateStringId(jsTime);
       let matchingTableData = document.querySelector(`[data-timeslot="${timeId}"]`);
       if (matchingTableData) {
-        matchingTableData.textContent += 'Brandi';
+        matchingTableData.textContent += union.owner;
+        console.log('Found matching Time: ', matchingTableData.dataset.timeslot, timeId);
       } else {
         console.log("No matching TD for this time: ", timeId);
       }
