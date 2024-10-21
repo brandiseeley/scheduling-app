@@ -1,91 +1,59 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
-from scheduler.models import TimeRange, TimeRangeUnion, Schedule
-
-# Define the timezone
-timezone = ZoneInfo('America/Denver')
+from scheduler.models import Schedule, SlotCluster
 
 # Create the main schedule
-schedule = Schedule.objects.create(title="Meeting Next Week")
-schedule.save()
+test_schedule = Schedule.objects.create(title="Meeting Next Week")
+test_schedule.save()
 
-mon_start = datetime(  2024, 9, 2, 8, tzinfo=timezone)
-mon_end = datetime(    2024, 9, 2, 14, tzinfo=timezone)
-tues_start = datetime( 2024, 9, 3, 8, tzinfo=timezone)
-tues_end = datetime(   2024, 9, 3, 14, tzinfo=timezone)
-thurs_start = datetime(2024, 9, 5, 8, tzinfo=timezone)
-thurs_end = datetime(  2024, 9, 5, 14, tzinfo=timezone)
-fri_start = datetime(  2024, 9, 6, 8, tzinfo=timezone)
-fri_end = datetime(    2024, 9, 6, 14, tzinfo=timezone)
+base_slots = ['2024-09-01T14:00:00.000Z', '2024-09-02T14:00:00.000Z', '2024-09-03T14:00:00.000Z',
+              '2024-09-04T14:00:00.000Z', '2024-09-05T14:00:00.000Z', '2024-09-01T14:30:00.000Z',
+              '2024-09-02T14:30:00.000Z', '2024-09-03T14:30:00.000Z', '2024-09-04T14:30:00.000Z',
+              '2024-09-05T14:30:00.000Z', '2024-09-01T15:00:00.000Z', '2024-09-02T15:00:00.000Z',
+              '2024-09-03T15:00:00.000Z', '2024-09-04T15:00:00.000Z', '2024-09-05T15:00:00.000Z',
+              '2024-09-01T15:30:00.000Z', '2024-09-02T15:30:00.000Z', '2024-09-03T15:30:00.000Z',
+              '2024-09-04T15:30:00.000Z', '2024-09-05T15:30:00.000Z', '2024-09-01T16:00:00.000Z',
+              '2024-09-02T16:00:00.000Z', '2024-09-03T16:00:00.000Z', '2024-09-04T16:00:00.000Z',
+              '2024-09-05T16:00:00.000Z', '2024-09-01T16:30:00.000Z', '2024-09-02T16:30:00.000Z',
+              '2024-09-03T16:30:00.000Z', '2024-09-04T16:30:00.000Z', '2024-09-05T16:30:00.000Z',
+              '2024-09-01T17:00:00.000Z', '2024-09-02T17:00:00.000Z', '2024-09-03T17:00:00.000Z',
+              '2024-09-04T17:00:00.000Z', '2024-09-05T17:00:00.000Z', '2024-09-01T17:30:00.000Z',
+              '2024-09-02T17:30:00.000Z', '2024-09-03T17:30:00.000Z', '2024-09-04T17:30:00.000Z',
+              '2024-09-05T17:30:00.000Z', '2024-09-01T18:00:00.000Z', '2024-09-02T18:00:00.000Z',
+              '2024-09-03T18:00:00.000Z', '2024-09-04T18:00:00.000Z', '2024-09-05T18:00:00.000Z',
+              '2024-09-01T18:30:00.000Z', '2024-09-02T18:30:00.000Z', '2024-09-03T18:30:00.000Z',
+              '2024-09-04T18:30:00.000Z', '2024-09-05T18:30:00.000Z', '2024-09-01T19:00:00.000Z',
+              '2024-09-02T19:00:00.000Z', '2024-09-03T19:00:00.000Z', '2024-09-04T19:00:00.000Z',
+              '2024-09-05T19:00:00.000Z', '2024-09-01T19:30:00.000Z', '2024-09-02T19:30:00.000Z',
+              '2024-09-03T19:30:00.000Z', '2024-09-04T19:30:00.000Z', '2024-09-05T19:30:00.000Z']
 
-mon_range = TimeRange.objects.create(start_time=mon_start, end_time=mon_end)
-mon_range.save()
-tues_range = TimeRange.objects.create(start_time=tues_start, end_time=tues_end)
-tues_range.save()
-thurs_range = TimeRange.objects.create(start_time=thurs_start, end_time=thurs_end)
-thurs_range.save()
-fri_range = TimeRange.objects.create(start_time=fri_start, end_time=fri_end)
-fri_range.save()
+base_cluster = SlotCluster.objects.create(
+    is_base=True,
+    owner='',
+    slots=base_slots,
+    schedule=test_schedule,
+)
 
+# Create user clusters
 
-main_union = TimeRangeUnion.objects.create(is_main=True)
-main_union.add_range(mon_range)
-main_union.add_range(tues_range)
-main_union.add_range(thurs_range)
-main_union.add_range(fri_range)
-schedule.add_main_union(main_union)
+user_1_slots = ['2024-09-03T14:00:00.000Z', '2024-09-03T14:30:00.000Z', '2024-09-03T15:00:00.000Z',
+                '2024-09-03T15:30:00.000Z', '2024-09-03T16:00:00.000Z', '2024-09-03T16:30:00.000Z',
+                '2024-09-03T17:00:00.000Z', '2024-09-03T17:30:00.000Z', '2024-09-05T18:00:00.000Z',
+                '2024-09-05T18:30:00.000Z', '2024-09-05T19:00:00.000Z', '2024-09-05T19:30:00.000Z']
 
-# Create a user union
+user_2_slots = ['2024-09-03T16:00:00.000Z', '2024-09-03T16:30:00.000Z', '2024-09-03T17:00:00.000Z',
+                '2024-09-03T17:30:00.000Z', '2024-09-03T18:00:00.000Z', '2024-09-04T18:00:00.000Z',
+                '2024-09-03T18:30:00.000Z', '2024-09-04T18:30:00.000Z', '2024-09-03T19:00:00.000Z',
+                '2024-09-04T19:00:00.000Z', '2024-09-03T19:30:00.000Z', '2024-09-04T19:30:00.000Z']
 
-# Create ranges
-tuesday_morning = datetime(2024, 9, 3, 8, tzinfo=timezone)
-tuesday_noon =    datetime(2024, 9, 3, 12, tzinfo=timezone)
-tuesday_range = TimeRange.objects.create(start_time=tuesday_morning, end_time=tuesday_noon)
-tuesday_range.save()
+user_1_cluster = SlotCluster.objects.create(
+    is_base=False,
+    owner='user 1',
+    slots=user_1_slots,
+    schedule=test_schedule,
+)
 
-thursday_noon =    datetime(2024, 9, 5, 12, tzinfo=timezone)
-thursday_evening = datetime(2024, 9, 5, 17, tzinfo=timezone)
-thursday_range = TimeRange.objects.create(start_time=thursday_noon, end_time=thursday_evening)
-thursday_range.save()
-
-# Create union for user
-user1_union = TimeRangeUnion.objects.create(is_main=False, owner='Brandi')
-user1_union.add_range(tuesday_range)
-user1_union.add_range(thursday_range)
-
-# Add user union to schedule
-schedule.add_user_union(user1_union)
-
-# Create a second user union
-tuesday_morning2 = datetime(2024, 9, 3, 10, tzinfo=timezone)
-tuesday_noon2 =    datetime(2024, 9, 3, 15, tzinfo=timezone)
-tuesday_range2 = TimeRange.objects.create(start_time=tuesday_morning2, end_time=tuesday_noon2)
-tuesday_range2.save()
-
-wednesday_noon =    datetime(2024, 9, 4, 12, tzinfo=timezone)
-wednesday_evening = datetime(2024, 9, 4, 17, tzinfo=timezone)
-wednesday_range = TimeRange.objects.create(start_time=wednesday_noon, end_time=wednesday_evening)
-wednesday_range.save()
-
-# Create union for user
-user2_union = TimeRangeUnion.objects.create(is_main=False, owner='Olivier')
-user2_union.add_range(tuesday_range2)
-user2_union.add_range(wednesday_range)
-
-# Add user union to schedule
-schedule.add_user_union(user2_union)
-
-# time1 = datetime(2024, 8, 6, 7, 30, tzinfo=timezone)
-# time2 = datetime(2024, 8, 6, 8, 30, tzinfo=timezone)
-# time3 = datetime(2024, 8, 6, 9, 30, tzinfo=timezone)
-# time4 = datetime(2024, 8, 6, 10, 30, tzinfo=timezone)
-
-# range1 = TimeRange(start_time=time2, end_time=time3)
-# range1.save()
-# range2 = TimeRange(start_time=time1, end_time=time4)
-# range2.save()
-
-# union = TimeRangeUnion.objects.create(is_main=False, owner='Brandi')
-# union.add_range(range2)
-# union.add_range(range1)
+user_2_cluster = SlotCluster.objects.create(
+    is_base=False,
+    owner='user 2',
+    slots=user_2_slots,
+    schedule=test_schedule,
+)
