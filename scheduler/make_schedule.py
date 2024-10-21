@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 from scheduler.models import TimeRange, TimeRangeUnion, Schedule
 
 # Define the timezone
-timezone = ZoneInfo('UTC')
+timezone = ZoneInfo('America/Denver')
 
 # Create the main schedule
 schedule = Schedule.objects.create(title="Meeting Next Week")
@@ -57,16 +57,16 @@ user1_union.add_range(thursday_range)
 # Add user union to schedule
 schedule.add_user_union(user1_union)
 
-# time1 = datetime(2024, 8, 6, 7, 30, tzinfo=timezone)
-# time2 = datetime(2024, 8, 6, 8, 30, tzinfo=timezone)
-# time3 = datetime(2024, 8, 6, 9, 30, tzinfo=timezone)
-# time4 = datetime(2024, 8, 6, 10, 30, tzinfo=timezone)
+time1 = datetime(2024, 8, 6, 7, 30, tzinfo=timezone)
+time2 = datetime(2024, 8, 6, 8, 30, tzinfo=timezone)
+time3 = datetime(2024, 8, 6, 9, 30, tzinfo=timezone)
+time4 = datetime(2024, 8, 6, 10, 30, tzinfo=timezone)
 
-# range1 = TimeRange(start_time=time2, end_time=time3)
-# range1.save()
-# range2 = TimeRange(start_time=time1, end_time=time4)
-# range2.save()
+range1 = TimeRange(start_time=time2, end_time=time3)
+range1.save()
+range2 = TimeRange(start_time=time1, end_time=time4)
+range2.save()
 
-# union = TimeRangeUnion.objects.create(is_main=False, owner='Brandi')
-# union.add_range(range2)
-# union.add_range(range1)
+union = TimeRangeUnion.objects.create(is_main=False, owner='Brandi')
+union.add_range(range2)
+union.add_range(range1)
