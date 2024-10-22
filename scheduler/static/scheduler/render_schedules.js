@@ -13,8 +13,48 @@
     to the appropriate schedule
 */
 
+class SlotCluster {
+  constructor(slots, isMain) {
+    this.slots = slots.map(ISOString => new Date(ISOString));
+  }
+
+  earliest() {
+    return this.slots[0];
+  }
+
+  latest() {
+    return this.slots[this.slots.length - 1];
+  }
+
+  // Return an object with date strings in the local time
+  // as keys and times that exist within that local date
+  // in an array value
+  localDatesAndTimes() {
+    const MONTHS = ['JAN', 'FEB', 'MAR', 'APR',
+      'MAY', 'JUN', 'JUL', 'AUG',
+      'SEP', 'OCT', 'NOV', 'DEC'];
+    let datesMap = {};
+    this.slots.forEach(slot => {
+      let dateString = `${MONTHS[slot.getMonth()]} ${slot.getDate()}`;
+      let timeString = `${slot.getHours()}:${slot.getMinutes()}`;
+      if (datesMap.hasOwnProperty(dateString)) {
+        datesMap[dateString].push(timeString);
+      } else {
+        datesMap[dateString] = [timeString];
+      }
+    });
+    return datesMap;
+  }
+
+  localTimes() {
+    return this.slots.map(slot => {
+      return `${slot.getHours()}:${slot.getMinutes()}`;
+    });
+  }
+}
+
 async function getScheduleData() {
-  let response = await fetch('data/29');
+  let response = await fetch('data/31');
   let data = await response.json();
   console.log(data);
   return data;
@@ -25,13 +65,18 @@ function dateStringId(date) {
   return date.toISOString();
 }
 
-function renderDays(days) {
+function renderMainSchedule(datesMap) {
   let daysHeader = document.querySelector('#days');
-  days.forEach(day => {
+  for (let [dateString, timesArray] of Object.entries(datesMap)) {
     let head = document.createElement('TH');
-    head.textContent = day;
+    head.textContent = dateString;
     daysHeader.appendChild(head);
-  });
+  }
+  // days.forEach(day => {
+  //   let head = document.createElement('TH');
+  //   head.textContent = day;
+  //   daysHeader.appendChild(head);
+  // });
 }
 
 function renderTimes(hourSamples, days) {
@@ -80,9 +125,19 @@ function renderUserAvailability(userUnions) {
 async function renderSchedule() {
   let scheduleData = await getScheduleData();
 
-  renderDays(scheduleData.days);
-  renderTimes(scheduleData.hour_samples, scheduleData.days);
-  renderUserAvailability(scheduleData.user_unions);
+  let mainCluster = new SlotCluster(scheduleData.base_cluster.slots, true);
+  console.log("Dates:");
+  console.log(mainCluster.localDatesAndTimes());
+  let userClusters = scheduleData.user_clusters.map(clusterObj => {
+    return new SlotCluster(clusterObj.slots, false);
+  });
+
+  console.log(mainCluster);
+  console.log(userClusters);
+
+  renderMainSchedule(mainCluster.localDatesAndTimes());
+  // renderTimes(scheduleData.hour_samples, scheduleData.days);
+  // renderUserAvailability(scheduleData.user_unions);
 }
 
 renderSchedule();
