@@ -1,21 +1,32 @@
-/* eslint-disable max-statements */
 /* eslint-disable max-lines-per-function */
-/*
-1. Create a basic skeleton to be sent as the original HTML file we get.
+class Slot {
+  constructor(ISOString) {
+    this.ISOString = ISOString;
+    this.id = ISOString;
+    this.date = new Date(ISOString);
+  }
 
-2. Write JS that renders the main schedule (for now just use one)
-  - Fetch schedule data asynchronously from server
-  - Render it into the table with proper dates and times
+  timeDisplay() {
+    let hours = this.date.getHours();
+    let minutes = this.date.getMinutes();
+    let suffix = hours >= 12 ? 'pm' : 'am';
+    let hoursDisplay = hours > 12 ? ((hours % 12) + 1) : hours;
+    return `${hoursDisplay}:${String(minutes).padEnd(2, '0')} ${suffix}`;
+  }
 
-2. Write JS that renders each users availability
-  - Fetch data asynchronously (Should already have it)
-  - Iterate through each existing user and add their names
-    to the appropriate schedule
-*/
+  dateDisplay() {
+    const MONTHS = ['JAN', 'FEB', 'MAR', 'APR',
+      'MAY', 'JUN', 'JUL', 'AUG',
+      'SEP', 'OCT', 'NOV', 'DEC'];
+
+    return `${MONTHS[this.date.getMonth()]} ${this.date.getDate()}`;
+  }
+}
 
 class SlotCluster {
-  constructor(slots, isMain) {
-    this.slots = slots.map(ISOString => new Date(ISOString));
+  constructor(slots, isMain, owner) {
+    this.slots = slots.map(ISOString => new Slot(ISOString));
+    this.owner = owner;
   }
 
   earliest() {
@@ -29,14 +40,11 @@ class SlotCluster {
   // Return an object with date strings in the local time
   // as keys and times that exist within that local date
   // in an array value
-  localDatesAndTimes() {
-    const MONTHS = ['JAN', 'FEB', 'MAR', 'APR',
-      'MAY', 'JUN', 'JUL', 'AUG',
-      'SEP', 'OCT', 'NOV', 'DEC'];
+  localDatesMap() {
     let datesMap = {};
     this.slots.forEach(slot => {
-      let dateString = `${MONTHS[slot.getMonth()]} ${slot.getDate()}`;
-      let timeString = `${slot.getHours()}:${slot.getMinutes()}`;
+      let dateString = slot.dateDisplay();
+      let timeString = slot.timeDisplay();
       if (datesMap.hasOwnProperty(dateString)) {
         datesMap[dateString].push(timeString);
       } else {
@@ -46,10 +54,21 @@ class SlotCluster {
     return datesMap;
   }
 
-  localTimes() {
-    return this.slots.map(slot => {
-      return `${slot.getHours()}:${slot.getMinutes()}`;
+  // Returns an object with time strings in the local time
+  // as keys and slots associated with that time of day
+  // in an array value
+  localTimesMap() {
+    let timesMap = {};
+    this.slots.forEach(slot => {
+      let timeString = slot.timeDisplay();
+      if (!(timeString in timesMap)) {
+        timesMap[timeString] = [slot];
+      } else {
+        timesMap[timeString].push(slot);
+      }
     });
+
+    return timesMap;
   }
 }
 
@@ -60,84 +79,56 @@ async function getScheduleData() {
   return data;
 }
 
-// Date String ID should always be in UTC
-function dateStringId(date) {
-  return date.toISOString();
-}
+function renderMainSchedule(mainCluster) {
+  let datesMap = mainCluster.localDatesMap();
+  let timesMap = mainCluster.localTimesMap();
 
-function renderMainSchedule(datesMap) {
   let daysHeader = document.querySelector('#days');
-  for (let [dateString, timesArray] of Object.entries(datesMap)) {
+  for (let dateString of Object.keys(datesMap)) {
     let head = document.createElement('TH');
     head.textContent = dateString;
     daysHeader.appendChild(head);
   }
-  // days.forEach(day => {
-  //   let head = document.createElement('TH');
-  //   head.textContent = day;
-  //   daysHeader.appendChild(head);
-  // });
-}
 
-function renderTimes(hourSamples, days) {
   let tableBody = document.querySelector('tbody');
-  hourSamples.forEach(time => {
+  for (let [timeString, timesArray] of Object.entries(timesMap)) {
     let row = document.createElement('TR');
-    for (let i = 0; i < days.length; i++) {
-      let jsTimeDay = new Date(days[i]);
-      let jsTimeHours = new Date(time);
-      let hours = jsTimeHours.getHours();
-      let minutes = jsTimeHours.getMinutes();
-      jsTimeDay.setHours(hours);
-      jsTimeDay.setMinutes(minutes);
-      let jsTime = jsTimeDay;
-
+    timesArray.forEach(slot => {
       let tableData = document.createElement('TD');
-
-      console.log(tableData);
-      let suffix = hours >= 12 ? 'pm' : 'am';
-      tableData.textContent = `${hours > 12 ? hours % 12 : hours}:${String(minutes).padEnd(2, '0')} ${suffix}`;
-
-      tableData.dataset.timeslot = dateStringId(jsTime);
+      tableData.textContent = timeString;
+      tableData.dataset.timeslot = slot.id;
       row.appendChild(tableData);
-    }
+    });
     tableBody.appendChild(row);
-  });
+  }
 }
 
-function renderUserAvailability(userUnions) {
-  userUnions.forEach(union => {
-    union.slots.forEach(timeString => {
-      let jsTime = new Date(timeString);
-      let timeId = dateStringId(jsTime);
-      let matchingTableData = document.querySelector(`[data-timeslot="${timeId}"]`);
+function renderUserAvailability(userClusters) {
+  userClusters.forEach(userCluster => {
+    console.log('Working on user cluster for:, ', userCluster.owner);
+    console.log(userCluster);
+
+    userCluster.slots.forEach(slot => {
+      let matchingTableData = document.querySelector(`[data-timeslot="${slot.id}"]`);
       if (matchingTableData) {
-        matchingTableData.textContent += union.owner;
-        console.log('Found matching Time: ', matchingTableData.dataset.timeslot, timeId);
+        matchingTableData.textContent += userCluster.owner;
       } else {
-        console.log("No matching TD for this time: ", timeId);
+        throw new Error("User cluster contained time stamp not present in main schedule");
       }
     });
   });
 }
 
-
 async function renderSchedule() {
   let scheduleData = await getScheduleData();
 
   let mainCluster = new SlotCluster(scheduleData.base_cluster.slots, true);
-  console.log("Dates:");
-  console.log(mainCluster.localDatesAndTimes());
   let userClusters = scheduleData.user_clusters.map(clusterObj => {
-    return new SlotCluster(clusterObj.slots, false);
+    return new SlotCluster(clusterObj.slots, false, clusterObj.owner);
   });
 
-  console.log(mainCluster);
-  console.log(userClusters);
-
-  renderMainSchedule(mainCluster.localDatesAndTimes());
-  // renderTimes(scheduleData.hour_samples, scheduleData.days);
-  // renderUserAvailability(scheduleData.user_unions);
+  renderMainSchedule(mainCluster);
+  renderUserAvailability(userClusters);
 }
 
 renderSchedule();
