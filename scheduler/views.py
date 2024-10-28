@@ -33,6 +33,8 @@ def add_user_availability(request, schedule_id):
             slots=data.get('slots'),
             schedule=schedule,
             )
+
+        return HttpResponse("Availability added", status=200)
     except Exception as e:
         print('Problem happened when adding user availabiltiy')
         raise e

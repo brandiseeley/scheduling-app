@@ -71,6 +71,14 @@ class SlotCluster {
 
     return timesMap;
   }
+
+  toObject() {
+    return {
+      slots: this.slots.map(slot => slot.id),
+      owner: this.owner,
+      isMain: this.isMain,
+    };
+  }
 }
 
 // Manage API
@@ -92,17 +100,14 @@ function getCookie(name) {
 }
 
 async function getScheduleData() {
-  let response = await fetch('31/data');
+  let response = await fetch('32/data');
   let data = await response.json();
-  console.log(data);
   return data;
 }
 
 document.querySelector('form').addEventListener('submit', event => {
   event.preventDefault();
-  console.log(event.target);
   let formData = new FormData(event.target);
-  console.log(formData);
   let slots = [];
   let owner;
   for (let [name, value] of formData.entries()) {
@@ -110,23 +115,26 @@ document.querySelector('form').addEventListener('submit', event => {
     if (name === 'owner') owner = value;
   }
 
-  addAvailability(owner, slots);
+  let newSlotCluster = new SlotCluster(slots, false, owner);
+  addAvailability(newSlotCluster);
 });
 
-async function addAvailability(owner, slots) {
+async function addAvailability(slotCluster) {
   const csrftoken = getCookie('csrftoken');
   try {
-    await fetch('31/add_user', {
+    let response = await fetch('32/add_user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken,
       },
-      body: JSON.stringify({
-        owner,
-        slots,
-      })
+      body: JSON.stringify(slotCluster.toObject()),
     });
+
+    if (response.ok) {
+      renderUserAvailability(slotCluster);
+    }
+
   } catch (error) {
     console.log("Error when adding availability");
     throw error;
@@ -173,10 +181,8 @@ function renderSlots(timesMap) {
   }
 }
 
-function renderUserAvailability(userClusters) {
+function renderUserAvailability(...userClusters) {
   userClusters.forEach(userCluster => {
-    console.log('Working on user cluster for:, ', userCluster.owner);
-    console.log(userCluster);
 
     userCluster.slots.forEach(slot => {
       let matchingTableData = document.querySelector(`[data-timeslot="${slot.id}"]`);
@@ -198,7 +204,7 @@ async function renderSchedule() {
   });
 
   renderMainSchedule(mainCluster);
-  renderUserAvailability(userClusters);
+  renderUserAvailability(...userClusters);
 }
 
 renderSchedule();
