@@ -1,0 +1,134 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Create a new Schedule</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{% static 'scheduler/style.css' %}">
+</head>
+<body>
+
+<h1>Create a New Schedule</h1>
+<p id="flash-message"></p>
+
+<form id="date-range-selector" method="POST" action="/schedules/new">
+  <h2>Dates:</h2>
+  <label>
+    Choose the first day:
+    <input type="date" placeholder="from" id="date-from">
+  </label>
+  <label>
+    Choose the last day:
+    <input type="date" placeholder="to" id="date-to">
+  </label>
+
+  <h2>Times:</h2>
+
+  <!-- <label>
+    <input type="checkbox">
+    Any Time
+  </label>
+  <label>
+    <input type="checkbox">
+    1am
+  </label>
+  <label>
+    <input type="checkbox">
+    2am
+  </label>
+  <label>
+    <input type="checkbox">
+    3am
+  </label>
+  <label>
+    <input type="checkbox">
+    4am
+  </label>
+  <label>
+    <input type="checkbox">
+    5am
+  </label>
+  <label>
+    <input type="checkbox">
+    6am
+  </label>
+  <label>
+    <input type="checkbox">
+    7am
+  </label>
+  <label>
+    <input type="checkbox">
+    8am
+  </label>
+  <label>
+    <input type="checkbox">
+    9am
+  </label>
+  <label>
+    <input type="checkbox">
+    10am
+  </label>
+  <label>
+    <input type="checkbox">
+    11am
+  </label>
+  <label>
+    <input type="checkbox">
+    12pm
+  </label>
+  <label>
+    <input type="checkbox">
+    1pm
+  </label>
+  <label>
+    <input type="checkbox">
+    2pm
+  </label>
+  <label>
+    <input type="checkbox">
+    3pm
+  </label>
+  <label>
+    <input type="checkbox">
+    4pm
+  </label>
+  <label>
+    <input type="checkbox">
+    5pm
+  </label>
+  <label>
+    <input type="checkbox">
+    6pm
+  </label>
+  <label>
+    <input type="checkbox">
+    7pm
+  </label>
+  <label>
+    <input type="checkbox">
+    8pm
+  </label>
+  <label>
+    <input type="checkbox">
+    9pm
+  </label>
+  <label>
+    <input type="checkbox">
+    10pm
+  </label>
+  <label>
+    <input type="checkbox">
+    11pm
+  </label>
+  <label>
+    <input type="checkbox">
+    12pm
+  </label> -->
+
+  <button type="submit">Create New Schedule</button>
+</form>
+
+<script src="{% static 'scheduler/create_schedule.js' %}"></script>
+</body>
+</html>

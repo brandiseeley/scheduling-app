@@ -38,3 +38,7 @@ tfoot th {
 tfoot td {
   font-weight: bold;
 }
+
+#date-range-selector label {
+  display: block;
+}

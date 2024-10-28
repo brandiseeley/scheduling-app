@@ -10,6 +10,12 @@ from scheduler.models import Schedule
 def index(request):
     return HttpResponse('Hello, World!')
 
+def new_schedule(request):
+    if request.method == 'GET':
+        return render(request, "scheduler/new_schedule.html")
+    else:
+        return HttpResponse('Posting new data')
+
 def display_schedule(request, schedule_id):
     schedule = get_object_or_404(Schedule, pk=schedule_id)
     context = schedule.as_dict()
